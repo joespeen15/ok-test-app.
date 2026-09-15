@@ -1,9 +1,12 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Тест OK API</title>
+
     <style>
         body {
             margin: 0;
@@ -30,6 +33,7 @@
 
         p {
             color: #666;
+            word-break: break-word;
         }
 
         button {
@@ -38,21 +42,59 @@
             padding: 12px 20px;
             font-size: 16px;
             cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
+
 <body>
+
     <div class="box">
         <h1>Тест OK API</h1>
-        <p id="status">Приложение успешно загрузилось.</p>
-        <button onclick="test()">Проверить</button>
+
+        <p id="status">
+            Загрузка...
+        </p>
+
+        <button onclick="testJavaScript()">
+            Проверить JavaScript
+        </button>
+
+        <button onclick="testVK()">
+            Проверить VK Bridge
+        </button>
     </div>
 
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+
     <script>
-        function test() {
+        function testJavaScript() {
             document.getElementById("status").textContent =
                 "JavaScript работает!";
         }
+
+        async function testVK() {
+            const status = document.getElementById("status");
+
+            status.textContent = "Проверяем VK Bridge...";
+
+            try {
+                const result = await vkBridge.send("VKWebAppInit");
+
+                status.textContent =
+                    "VK Bridge работает! Ответ получен.";
+                
+                console.log("VKWebAppInit:", result);
+
+            } catch (error) {
+                console.error("VK Bridge error:", error);
+
+                status.textContent =
+                    "Ошибка VK Bridge: " + JSON.stringify(error);
+            }
+        }
     </script>
+
 </body>
 </html>
+```
