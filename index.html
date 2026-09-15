@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Диагностика OK API</title>
+    <title>Тест OK API</title>
 
     <style>
         body {
@@ -59,18 +59,14 @@
 
 <div class="box">
 
-    <h1>Диагностика</h1>
+    <h1>Тест OK API</h1>
 
     <p id="status">
-        Страница загружена.
+        Приложение загружено.
     </p>
 
-    <button onclick="checkBridge()">
-        Проверить VK Bridge
-    </button>
-
-    <button onclick="checkEnvironment()">
-        Проверить окружение
+    <button onclick="initVK()">
+        Инициализировать VK Bridge
     </button>
 
     <div id="result"></div>
@@ -81,49 +77,77 @@
 
 <script>
 
-    function checkBridge() {
+    async function initVK() {
 
+        const status = document.getElementById("status");
         const result = document.getElementById("result");
 
-        result.textContent = "Начинаем проверку...\n";
+        status.textContent = "Инициализация...";
+        result.textContent = "";
 
         if (typeof vkBridge === "undefined") {
 
-            result.textContent +=
-                "VK Bridge НЕ найден.";
+            status.textContent = "Ошибка";
+
+            result.textContent =
+                "VK Bridge не найден.";
 
             return;
         }
 
-        result.textContent +=
-            "VK Bridge найден.\n";
-
-        result.textContent +=
-            "Тип: " + typeof vkBridge + "\n";
-
-        result.textContent +=
-            "Метод send: " + typeof vkBridge.send + "\n";
-
-        result.textContent +=
-            "Проверка завершена.";
-
-    }
-
-
-    function checkEnvironment() {
-
-        const result = document.getElementById("result");
-
         result.textContent =
-            "URL:\n" +
-            window.location.href +
-            "\n\nUser Agent:\n" +
-            navigator.userAgent +
-            "\n\nVK Bridge:\n" +
-            (typeof vkBridge === "undefined"
-                ? "НЕ найден"
-                : "найден");
+            "VK Bridge найден.\n" +
+            "Отправляем VKWebAppInit...\n";
 
+        try {
+
+            const timeout = new Promise((_, reject) => {
+
+                setTimeout(() => {
+
+                    reject(
+                        new Error(
+                            "VKWebAppInit не ответил за 10 секунд."
+                        )
+                    );
+
+                }, 10000);
+
+            });
+
+            const initRequest = vkBridge.send("VKWebAppInit");
+
+            const response = await Promise.race([
+                initRequest,
+                timeout
+            ]);
+
+            status.textContent =
+                "VK Bridge успешно инициализирован!";
+
+            result.textContent +=
+                "\nОтвет:\n" +
+                JSON.stringify(response, null, 2);
+
+            console.log(
+                "VKWebAppInit response:",
+                response
+            );
+
+        } catch (error) {
+
+            status.textContent =
+                "Ошибка инициализации";
+
+            result.textContent +=
+                "\nОшибка:\n" +
+                JSON.stringify(error, null, 2);
+
+            console.error(
+                "VKWebAppInit error:",
+                error
+            );
+        }
     }
 
 </script>
