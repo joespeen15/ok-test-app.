@@ -1,9 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест OK API</title>
+
+    <title>Тест VK Mini App</title>
 
     <!-- VK Bridge -->
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
@@ -13,18 +15,25 @@
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f2f3f5;
+
             display: flex;
             justify-content: center;
             align-items: center;
+
             min-height: 100vh;
         }
 
         .box {
             background: white;
+
             padding: 30px;
+
             border-radius: 16px;
+
             text-align: center;
+
             width: 300px;
+
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
@@ -34,13 +43,17 @@
 
         p {
             color: #666;
+            word-break: break-word;
         }
 
         button {
             border: 0;
             border-radius: 10px;
+
             padding: 12px 20px;
+
             font-size: 16px;
+
             cursor: pointer;
         }
     </style>
@@ -49,48 +62,117 @@
 <body>
 
     <div class="box">
-        <h1>Тест OK API</h1>
+
+        <h1>Тест VK Mini App</h1>
 
         <p id="status">
             Запуск приложения...
         </p>
 
         <button onclick="test()">
-            Проверить
+            Проверить JavaScript
         </button>
+
     </div>
 
+
     <script>
+
         async function initVK() {
+
             const status = document.getElementById("status");
 
+            console.log("VK TEST: страница загружена");
+
+            console.log(
+                "VK TEST: vkBridge =",
+                typeof vkBridge
+            );
+
+
+            if (typeof vkBridge === "undefined") {
+
+                status.textContent =
+                    "Ошибка: VK Bridge не загрузился.";
+
+                console.error(
+                    "VK TEST: vkBridge отсутствует"
+                );
+
+                return;
+            }
+
+
+            status.textContent =
+                "VK Bridge загружен. Инициализация...";
+
+
+            console.log(
+                "VK TEST: отправляем VKWebAppInit"
+            );
+
+
             try {
-                await vkBridge.send("VKWebAppInit");
+
+                const result = await Promise.race([
+
+                    vkBridge.send("VKWebAppInit"),
+
+                    new Promise((_, reject) =>
+                        setTimeout(
+                            () => reject(
+                                new Error(
+                                    "VKWebAppInit не ответил за 5 секунд"
+                                )
+                            ),
+                            5000
+                        )
+                    )
+
+                ]);
+
+
+                console.log(
+                    "VK TEST: VKWebAppInit ответил:",
+                    result
+                );
+
 
                 status.textContent =
                     "VK Mini App успешно инициализировано.";
 
-                console.log("VKWebAppInit успешно выполнен");
+            }
 
-            } catch (error) {
-
-                status.textContent =
-                    "Ошибка инициализации VK Mini App.";
+            catch (error) {
 
                 console.error(
-                    "Ошибка VK Bridge:",
+                    "VK TEST: ошибка VKWebAppInit:",
                     error
                 );
+
+
+                status.textContent =
+                    "Ошибка VK Bridge: " +
+                    error.message;
             }
         }
 
+
         function test() {
+
             document.getElementById("status").textContent =
                 "JavaScript работает!";
+
+            console.log(
+                "VK TEST: кнопка работает"
+            );
         }
 
+
         initVK();
+
     </script>
 
 </body>
 </html>
+```
