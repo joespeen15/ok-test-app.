@@ -1,11 +1,12 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест OK API</title>
 
-    <title>Диагностика OK API</title>
+    <!-- VK Bridge -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 
     <style>
         body {
@@ -22,7 +23,8 @@
             background: white;
             padding: 30px;
             border-radius: 16px;
-            width: 330px;
+            text-align: center;
+            width: 300px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
@@ -30,125 +32,65 @@
             margin-top: 0;
         }
 
-        button {
-            width: 100%;
-            border: 0;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
+        p {
+            color: #666;
         }
 
-        #result {
-            margin-top: 20px;
-            padding: 12px;
-            background: #f2f3f5;
+        button {
+            border: 0;
             border-radius: 10px;
-            white-space: pre-wrap;
-            word-break: break-word;
-            font-size: 14px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
+    <div class="box">
+        <h1>Тест OK API</h1>
 
-    <h1>Диагностика</h1>
+        <p id="status">
+            Запуск приложения...
+        </p>
 
-    <button onclick="checkEnvironment()">
-        Проверить окружение
-    </button>
-
-    <button onclick="checkInitSupport()">
-        Проверить VKWebAppInit
-    </button>
-
-    <div id="result">
-        Готово к проверке.
+        <button onclick="test()">
+            Проверить
+        </button>
     </div>
 
-</div>
+    <script>
+        async function initVK() {
+            const status = document.getElementById("status");
 
-<script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+            try {
+                await vkBridge.send("VKWebAppInit");
 
-<script>
+                status.textContent =
+                    "VK Mini App успешно инициализировано.";
 
-    function checkEnvironment() {
+                console.log("VKWebAppInit успешно выполнен");
 
-        const result = document.getElementById("result");
+            } catch (error) {
 
-        if (typeof vkBridge === "undefined") {
-            result.textContent =
-                "VK Bridge НЕ найден.";
-            return;
+                status.textContent =
+                    "Ошибка инициализации VK Mini App.";
+
+                console.error(
+                    "Ошибка VK Bridge:",
+                    error
+                );
+            }
         }
 
-        let text = "";
-
-        text += "VK Bridge: найден\n";
-        text += "Тип: " + typeof vkBridge + "\n\n";
-
-        try {
-            text += "isWebView: " +
-                vkBridge.isWebView() + "\n";
-
-            text += "isIframe: " +
-                vkBridge.isIframe() + "\n";
-
-            text += "isEmbedded: " +
-                vkBridge.isEmbedded() + "\n";
-
-            text += "isStandalone: " +
-                vkBridge.isStandalone() + "\n";
-
-        } catch (error) {
-
-            text +=
-                "Ошибка определения окружения:\n" +
-                JSON.stringify(error);
-
+        function test() {
+            document.getElementById("status").textContent =
+                "JavaScript работает!";
         }
 
-        text += "\nURL:\n";
-        text += window.location.href;
-
-        result.textContent = text;
-    }
-
-
-    function checkInitSupport() {
-
-        const result = document.getElementById("result");
-
-        if (typeof vkBridge === "undefined") {
-            result.textContent =
-                "VK Bridge НЕ найден.";
-            return;
-        }
-
-        try {
-
-            const supported =
-                vkBridge.supports("VKWebAppInit");
-
-            result.textContent =
-                "VKWebAppInit поддерживается: " +
-                supported;
-
-        } catch (error) {
-
-            result.textContent =
-                "Ошибка:\n" +
-                JSON.stringify(error);
-
-        }
-    }
-
-</script>
+        initVK();
+    </script>
 
 </body>
 </html>
-```
